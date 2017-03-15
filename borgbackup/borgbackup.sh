@@ -7,17 +7,18 @@
 
 # configuration
 USER=
+export BORG_PASSPHRASE=''
 REPOSITORY=
-COMPRESSION=zlib,5
-EXCLUDES=/home/user/.borgexcludes
+COMPRESSION=zlib,9
+EXCLUDES=/home/$USER/.borgexcludes
 # derived information
 export BORG_CACHE_DIR=/home/$USER/.cache/borg/
 USERID=`id -u $USER`
 
-borg create -v --stats                          \
-    --compression $COMPRESSION                  \
-    $REPOSITORY::'{hostname}-{now:%Y-%m-%d}'    \
-    /home/$USER/ 								\
+borg create -v --stats                      \
+	--compression $COMPRESSION              \
+	$REPOSITORY::'{hostname}-{now:%Y-%m-%d}'\
+	/home/$USER \
 	--exclude-from $EXCLUDES
 
 if [[ $? == 0 ]]; then
