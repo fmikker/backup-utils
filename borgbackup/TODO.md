@@ -1,0 +1,1 @@
+- Add check to verify that the backup directory is mounted
