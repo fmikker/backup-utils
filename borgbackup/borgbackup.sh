@@ -20,6 +20,7 @@ borg create -v --stats                      \
 	$REPOSITORY::'{hostname}-{now:%Y-%m-%d}'\
 	/home/$USER \
 	--exclude-from $EXCLUDES
+	--ignore-inode
 
 if [[ $? == 0 ]]; then
         MSG="Backup success"
