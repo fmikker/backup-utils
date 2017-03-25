@@ -1,2 +1,8 @@
-/home/user/.cache
-
+/home/*/.cache
+/dev
+/tmp
+/run
+/sys
+/proc
+/mnt
+/media
