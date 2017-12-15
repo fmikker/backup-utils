@@ -7,7 +7,7 @@
 
 # configuration
 USER=root
-export BORG_PASSPHRASE=''
+export BORG_PASSPHRASE='password'
 REPOSITORY=backup@t.ld:repo
 COMPRESSION=zlib,9
 EXCLUDES=/root/.borgexcludes
@@ -23,7 +23,7 @@ borg create -v --stats                      \
 if [[ $? == 0 ]]; then
         logger -t borgbackup -p info "Backup success"
 else
-        logger -t borgbackup -p warning"Backup failed... See root's dead.letter for details."
+        logger -t borgbackup -p error"Backup failed!"
 fi
 
 # Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
@@ -32,3 +32,7 @@ fi
 # other machine's archives also.
 borg prune -v $REPOSITORY --prefix '{hostname}-' \
 --keep-daily=7 --keep-weekly=4 --keep-monthly=6
+
+# Dump repository information to file for monitoring
+
+borg info $REPOSITORY --json > /root/.cache/borginfo 
