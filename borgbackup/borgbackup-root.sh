@@ -4,27 +4,34 @@
 #
 # Copyright (C) 2016 Olivier Bilodeau
 # Licensed under the MIT License
-
+# Additions 2017 Fredrik Mikker
 # configuration
+
 USER=root
 export BORG_PASSPHRASE='password'
-REPOSITORY=backup@t.ld:repo
+REPOSITORY=backup@hostname:root-disk
 COMPRESSION=zlib,9
 EXCLUDES=/root/.borgexcludes
 # derived information
 export BORG_CACHE_DIR=/root/.cache/borg/
+USERID=`id -u $USER`
 
 borg create -v --stats                      \
-	--compression $COMPRESSION              \
+	--compression $COM PRESSION              \
 	$REPOSITORY::'{hostname}-{now:%Y-%m-%d}'\
 	/ \
 	--exclude-from $EXCLUDES
 
 if [[ $? == 0 ]]; then
-        logger -t borgbackup -p info "Backup success"
+        MSG="Backup success "
+	echo $MSG | systemd-cat --identifier "borgbackup" --priority "info"
+        ICON=document-send
 else
-        logger -t borgbackup -p error"Backup failed!"
+        MSG="Backup failed! See the system log for more information."
+	echo $MSG | systemd-cat --identifier "borgbackup" --priority "crit"
+        ICON=dialog-warning
 fi
+sudo -u $USER DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$USERID/bus notify-send 'BorgBackup' "$MSG" --icon=$ICON
 
 # Use the `prune` subcommand to maintain 7 daily, 4 weekly and 6 monthly
 # archives of THIS machine. The '{hostname}-' prefix is very important to
@@ -32,7 +39,3 @@ fi
 # other machine's archives also.
 borg prune -v $REPOSITORY --prefix '{hostname}-' \
 --keep-daily=7 --keep-weekly=4 --keep-monthly=6
-
-# Dump repository information to file for monitoring
-
-borg info $REPOSITORY --json > /root/.cache/borginfo 
